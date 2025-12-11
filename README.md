@@ -3,7 +3,10 @@
 # Prerequisites
 
 - Rust (latest stable version)
-- `wasm-pack` - Install with: `cargo install wasm-pack`
+wasm-pack, install with: 
+```bash
+`cargo install wasm-pack`
+```
 
 ### Build Steps
 
@@ -14,7 +17,6 @@ wasm-pack build --target web
 
 2. Serve the files with a local web server (required for WebAssembly):
 ```bash
-# Python
 python -m http.server 8000
 ```
 

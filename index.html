@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mehen - Ancient Egyptian Snake Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mehen</h1>
+        </header>
+        
+        <div class="game-info">
+            <div class="player-info">
+                <div id="current-player" class="player-indicator">
+                    <span>Current Player: </span>
+                    <span id="player-name">Light</span>
+                </div>
+                <div id="dice-display">
+                    <span>Dice: </span>
+                    <span id="dice-value">-</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="roll-btn" class="btn btn-primary">Roll Dice</button>
+                <button id="reset-btn" class="btn btn-secondary">Reset Game</button>
+            </div>
+        </div>
+        
+        <div id="game-board" class="board"></div>
+        
+        <div id="status" class="status"></div>
+    
+    <script type="module" src="index.js"></script>
+</body>
+</html>
+

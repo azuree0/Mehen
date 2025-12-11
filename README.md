@@ -39,7 +39,7 @@ Be the first player to move all six of your pieces from the start area to the ce
   - **Middle Ring**: 12 squares
   - **Inner Ring**: 6 squares
   - **Center**: Snake's head (final destination)
-  - The spiral path winds from the outer edge inward toward the center
+  - The spiral path winds from the outer edge inward toward the center.
 
 ### Turn Sequence
 

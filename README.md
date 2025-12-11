@@ -1,3 +1,5 @@
+<img width="818" height="713" alt="M" src="https://github.com/user-attachments/assets/5d148268-897c-41e4-837b-61c2679d387f" />
+
 # Prerequisites
 
 - Rust (latest stable version)

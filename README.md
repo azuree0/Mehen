@@ -5,7 +5,7 @@
 - Rust (latest stable version)
 wasm-pack, install with: 
 ```bash
-`cargo install wasm-pack`
+cargo install wasm-pack
 ```
 
 ### Build Steps

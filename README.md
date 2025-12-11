@@ -1,5 +1,3 @@
-![Mehen Game Screenshot](./image/game.png)
-
 # Prerequisites
 
 - Rust (latest stable version)

@@ -1,4 +1,4 @@
-<img width="818" height="713" alt="M" src="https://github.com/user-attachments/assets/5d148268-897c-41e4-837b-61c2679d387f" />
+<img width="972" height="823" alt="M" src="https://github.com/user-attachments/assets/2fc7f5b1-f0af-4ae0-af97-cdc3b622145b" />
 
 # Prerequisites
 

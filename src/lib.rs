@@ -1,6 +1,33 @@
 use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct SquarePosition {
+    x: f64,
+    y: f64,
+    angle: f64,
+    radius: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct SquareData {
+    square_type: u8,
+    is_valid_move: bool,
+    is_center: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct CenterPiece {
+    player: String,
+    index: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct StartPiece {
+    index: usize,
+    is_valid_move: bool,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[wasm_bindgen]
 pub enum Player {
@@ -8,23 +35,9 @@ pub enum Player {
     Dark,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Square {
-    piece: Option<Player>,
-}
-
-impl Default for Square {
-    fn default() -> Self {
-        Square {
-            piece: None,
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 #[wasm_bindgen]
 pub struct GameState {
-    board: [Square; 36], // Mehen typically has 36 squares in a spiral
     current_player: Player,
     dice_value: u8,
     game_over: bool,
@@ -34,21 +47,11 @@ pub struct GameState {
     dark_pieces: Vec<usize>,  // Positions of dark pieces
 }
 
-// Mehen spiral path: starts at outer edge, spirals inward to center
-// This is a simplified linear representation of the spiral
-const SPIRAL_PATH: [usize; 36] = [
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-    20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
-];
-
 #[wasm_bindgen]
 impl GameState {
     #[wasm_bindgen(constructor)]
     pub fn new() -> GameState {
-        let board = [Square::default(); 36];
-        
         GameState {
-            board,
             current_player: Player::Light,
             dice_value: 0,
             game_over: false,
@@ -260,6 +263,167 @@ impl GameState {
     
     pub fn reset(&mut self) {
         *self = GameState::new();
+    }
+    
+    pub fn get_spiral_positions(&self, board_size: f64) -> JsValue {
+        let board_radius = board_size / 2.0;
+        let center_x = board_radius;
+        let center_y = board_radius;
+        
+        let outer_radius = board_radius * 0.85;
+        let middle_radius = board_radius * 0.55;
+        let inner_radius = board_radius * 0.25;
+        
+        let mut positions = Vec::new();
+        
+        // Outer ring: squares 1-18 (18 squares, indices 0-17)
+        let outer_ring_count = 18;
+        let outer_angle_step = 360.0 / outer_ring_count as f64;
+        let outer_start_angle = 0.0;
+        
+        for i in 0..outer_ring_count {
+            let angle = (outer_start_angle + i as f64 * outer_angle_step) % 360.0;
+            let rad = angle.to_radians();
+            
+            positions.push(SquarePosition {
+                x: center_x + outer_radius * rad.cos(),
+                y: center_y + outer_radius * rad.sin(),
+                angle,
+                radius: 85.0,
+            });
+        }
+        
+        // Middle ring: squares 19-30 (12 squares, indices 18-29)
+        let middle_ring_count = 12;
+        let middle_angle_step = 360.0 / middle_ring_count as f64;
+        let square18_angle = positions[17].angle;
+        let middle_start_angle = (square18_angle + 15.0) % 360.0;
+        
+        for i in 0..middle_ring_count {
+            let angle = (middle_start_angle + i as f64 * middle_angle_step) % 360.0;
+            let rad = angle.to_radians();
+            
+            positions.push(SquarePosition {
+                x: center_x + middle_radius * rad.cos(),
+                y: center_y + middle_radius * rad.sin(),
+                angle,
+                radius: 55.0,
+            });
+        }
+        
+        // Inner ring: squares 31-36 (6 squares, indices 30-35)
+        let inner_ring_count = 6;
+        let inner_angle_step = 360.0 / inner_ring_count as f64;
+        let square30_angle = positions[29].angle;
+        let inner_start_angle = (square30_angle + 30.0) % 360.0;
+        
+        for i in 0..inner_ring_count {
+            let angle = (inner_start_angle + i as f64 * inner_angle_step) % 360.0;
+            let rad = angle.to_radians();
+            
+            positions.push(SquarePosition {
+                x: center_x + inner_radius * rad.cos(),
+                y: center_y + inner_radius * rad.sin(),
+                angle,
+                radius: 25.0,
+            });
+        }
+        
+        serde_wasm_bindgen::to_value(&positions).unwrap()
+    }
+    
+    pub fn get_square_data(&self) -> JsValue {
+        let board_array = self.get_board();
+        let valid_moves: Vec<usize> = serde_wasm_bindgen::from_value(
+            self.get_valid_moves()
+        ).unwrap_or_default();
+        
+        #[derive(Deserialize)]
+        struct Pieces {
+            light: Vec<usize>,
+            dark: Vec<usize>,
+        }
+        let pieces: Pieces = serde_wasm_bindgen::from_value(self.get_pieces()).unwrap();
+        let player_pieces = match self.current_player {
+            Player::Light => &pieces.light,
+            Player::Dark => &pieces.dark,
+        };
+        
+        let board: Vec<u8> = serde_wasm_bindgen::from_value(board_array).unwrap_or_default();
+        let mut square_data = Vec::new();
+        
+        for square_index in 0..36 {
+            let square_type = board.get(square_index).copied().unwrap_or(0);
+            let mut is_valid_move = false;
+            
+            if square_type != 0 {
+                for i in 0..player_pieces.len() {
+                    let piece_pos = player_pieces[i];
+                    let board_pos = if piece_pos == 36 { 35 } else if piece_pos > 0 { piece_pos - 1 } else { usize::MAX };
+                    if board_pos == square_index && valid_moves.contains(&i) {
+                        is_valid_move = true;
+                        break;
+                    }
+                }
+            }
+            
+            let is_center = square_index == 35 && (square_type != 0 || is_valid_move);
+            
+            square_data.push(SquareData {
+                square_type,
+                is_valid_move,
+                is_center,
+            });
+        }
+        
+        serde_wasm_bindgen::to_value(&square_data).unwrap()
+    }
+    
+    pub fn get_center_pieces(&self) -> JsValue {
+        let mut center_pieces = Vec::new();
+        
+        for i in 0..self.light_pieces.len() {
+            if self.light_pieces[i] == 36 {
+                center_pieces.push(CenterPiece {
+                    player: "light".to_string(),
+                    index: i,
+                });
+            }
+        }
+        
+        for i in 0..self.dark_pieces.len() {
+            if self.dark_pieces[i] == 36 {
+                center_pieces.push(CenterPiece {
+                    player: "dark".to_string(),
+                    index: i,
+                });
+            }
+        }
+        
+        serde_wasm_bindgen::to_value(&center_pieces).unwrap()
+    }
+    
+    pub fn get_start_pieces(&self) -> JsValue {
+        let valid_moves: Vec<usize> = serde_wasm_bindgen::from_value(
+            self.get_valid_moves()
+        ).unwrap_or_default();
+        
+        let pieces = match self.current_player {
+            Player::Light => &self.light_pieces,
+            Player::Dark => &self.dark_pieces,
+        };
+        
+        let mut start_pieces = Vec::new();
+        for i in 0..pieces.len() {
+            if pieces[i] == 0 {
+                start_pieces.push(StartPiece {
+                    index: i,
+                    is_valid_move: valid_moves.contains(&i),
+                });
+            }
+        }
+        
+        serde_wasm_bindgen::to_value(&start_pieces).unwrap()
     }
 }
 

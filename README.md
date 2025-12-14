@@ -24,7 +24,6 @@ python -m http.server 8000
 ```bash
 http://localhost:8000
 ```
-
 <br>
 
 # Game Rules

@@ -193,25 +193,6 @@ export function saveMove(gameId, player, pieceIndex, positionFrom, positionTo, d
 }
 
 /**
- * Save game state
- */
-export function saveGameState(gameId, boardState, currentPlayer, diceValue) {
-  if (!db || !gameId) return;
-  
-  try {
-    const boardJson = JSON.stringify(boardState);
-    db.run(
-      `INSERT INTO game_states (game_id, board_state, current_player, dice_value)
-       VALUES (?, ?, ?, ?)`,
-      [gameId, boardJson, currentPlayer, diceValue]
-    );
-    saveDatabase();
-  } catch (error) {
-    console.error('Failed to save game state:', error);
-  }
-}
-
-/**
  * Get all games
  */
 export function getAllGames() {
@@ -258,35 +239,6 @@ export function getGameMoves(gameId) {
   } catch (error) {
     console.error('Failed to get moves:', error);
     return [];
-  }
-}
-
-/**
- * Get game statistics
- */
-export function getGameStats(games = null) {
-  if (!db) return { totalGames: 0, lightWins: 0, darkWins: 0, totalMoves: 0 };
-  
-  try {
-    const gamesList = games || getAllGames();
-    const totalGames = gamesList.length;
-    const lightWins = gamesList.filter(g => g.winner === 'Light').length;
-    const darkWins = gamesList.filter(g => g.winner === 'Dark').length;
-    
-    const movesResult = db.exec('SELECT COUNT(*) as count FROM moves');
-    const totalMoves = movesResult.length > 0 && movesResult[0].values.length > 0
-      ? movesResult[0].values[0][0]
-      : 0;
-    
-    return {
-      totalGames,
-      lightWins,
-      darkWins,
-      totalMoves
-    };
-  } catch (error) {
-    console.error('Failed to get stats:', error);
-    return { totalGames: 0, lightWins: 0, darkWins: 0, totalMoves: 0 };
   }
 }
 

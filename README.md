@@ -1,29 +1,35 @@
-<img width="972" height="823" alt="M" src="https://github.com/user-attachments/assets/2fc7f5b1-f0af-4ae0-af97-cdc3b622145b" />
+<img width="1374" height="1180" alt="M" src="https://github.com/user-attachments/assets/d25a6219-81b4-4c53-a025-e4822a5ff996" />
+
+<br>
 
 # Prerequisites
 
-- Rust (latest stable version)
-wasm-pack, install with: 
-```bash
-cargo install wasm-pack
-```
+- **Node.js** (v16 or higher) - (https://nodejs.org/)
+- **Rust** (latest stable version) - (https://rustup.rs/)
 
+- **wasm-pack** - Install with:
+  ```bash
+  cargo install wasm-pack
+  ```
+  
 ### Build Steps
 
-1. Build the WebAssembly module:
-```bash
-wasm-pack build --target web
-```
+1. **Build the WebAssembly module:**
+   ```bash
+   wasm-pack build --target web
+   ```
 
-2. Serve the files with a local web server (required for WebAssembly):
-```bash
-python -m http.server 8000
-```
+2. **Install Node.js dependencies:**
+   ```bash
+   npm install
+   ```
 
-3. Open browser:
-```bash
-http://localhost:8000
-```
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+`http://localhost:3000` (or port shown in the terminal)
+
 <br>
 
 # Game Rules
@@ -96,18 +102,29 @@ This combination of gameplay and symbolic meaning makes Mehen a unique window in
 
 <br>
 
-# Project Structure
+# Structure
 
 ```
 .
-├── Cargo.toml          # Rust project configuration
+├── Cargo.toml               # Rust project configuration       (Backend)  (Config)
+├── Cargo.lock               # Rust dependency lock file        (Backend)  (Config)
+├── package.json             # Node.js dependencies and scripts (Frontend) (Config)
+├── package-lock.json        # Node.js dependency lock file     (Frontend) (Config)
+├── vite.config.js           # Vite build configuration         (Frontend) (Config)
+├── index.html               # HTML entry point                 (Frontend) (Static / 1 Markup)
+├── style.css                # Global styles                    (Frontend) (Static / 4 Styles)
 ├── src/
-│   ├── lib.rs          # Main game logic
-│   └── main.rs         # Entry point
-├── index.html          # Web interface
-├── style.css           # Styling
-├── index.js            # JavaScript bindings
-├── build.bat           # Windows build script
-├── build.sh            # Unix build script
-└── README.md           # This file
+│   ├── lib.rs               # Rust game logic (WebAssembly)    (Backend)  (Source / 2 Library)
+│   ├── App.jsx              # React main component             (Frontend) (Source / 5 Component)
+│   ├── App.css              # Component styles                 (Frontend) (Static / 4 Styles)
+│   ├── main.jsx             # React entry point                (Frontend) (Source / 6 Script)
+│   └── database.js          # SQL History                      (Frontend) (Source / 3 Module)
+├── pkg/                     # wasm-pack generated              (Backend)
+│   ├── mehen.js             # WASM bindings                    (Backend)  (Source / 3 Module)
+│   ├── mehen_bg.wasm        # Compiled WebAssembly             (Backend)  (Source / 2 Library)
+│   ├── mehen.d.ts           # TypeScript definitions           (Backend)  (Source / 3 Module)
+│   └── package.json         # WASM package metadata            (Backend)  (Config)
+├── build.bat                # Windows build script             (Backend)  (Config)
+├── build.sh                 # Unix build script                (Backend)  (Config)
+└── README.md                # This file
 ```

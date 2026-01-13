@@ -1,0 +1,156 @@
+/* App-specific styles can go here if needed */
+/* Main styles are imported from style.css in main.jsx */
+
+/* History Button - Light Brown */
+.btn-history {
+  background-color: #c49a6a;
+  color: #fff;
+  border: 1px solid #b89068;
+}
+
+.btn-history:hover {
+  background-color: #b89068;
+  border-color: #a08058;
+}
+
+/* History Panel - White Background with Black Text */
+.history-panel {
+  margin-top: 30px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.history-header h2 {
+  margin: 0;
+  color: #000000;
+  font-size: 24px;
+}
+
+.history-game-info {
+  color: #000000;
+  font-size: 14px;
+}
+
+.history-empty {
+  text-align: center;
+  padding: 40px;
+  color: #000000;
+  font-size: 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.history-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.history-moves h3 {
+  margin: 0 0 15px 0;
+  color: #000000;
+  font-size: 18px;
+}
+
+.moves-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.moves-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.moves-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.moves-list::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+.moves-list::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+.move-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.move-number {
+  font-weight: bold;
+  color: #000000;
+  min-width: 40px;
+}
+
+.move-player {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  min-width: 60px;
+  text-align: center;
+}
+
+.move-player.light {
+  background: #f0f0f0;
+  color: #000000;
+}
+
+.move-player.dark {
+  background: #333333;
+  color: #fff;
+}
+
+.move-details {
+  flex: 1;
+  color: #000000;
+}
+
+.move-dice {
+  color: #000000;
+  font-weight: 600;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .history-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .move-item {
+    flex-wrap: wrap;
+  }
+}

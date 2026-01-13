@@ -6,6 +6,12 @@ Cargo.lock
 /pkg
 *.wasm
 
+# Node.js
+node_modules/
+package-lock.json
+dist/
+.vite/
+
 # IDE
 .vscode/
 .idea/

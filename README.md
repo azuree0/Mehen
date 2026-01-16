@@ -12,9 +12,9 @@
   cargo install wasm-pack
   ```
   
-### Build Steps
+### Build
 
-1. **Build the WebAssembly module:**
+1. **WebAssembly module:**
    ```bash
    wasm-pack build --target web
    ```

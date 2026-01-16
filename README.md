@@ -19,16 +19,16 @@
    wasm-pack build --target web
    ```
 
-2. **Install Node.js dependencies:**
+2. **Node.js:**
    ```bash
    npm install
    ```
 
-3. **Start the development server:**
+3. **Development server:**
    ```bash
    npm run dev
    ```
-`http://localhost:3000` (or port shown in the terminal)
+`http://localhost:3000` (or the port shown in the terminal)
 
 <br>
 

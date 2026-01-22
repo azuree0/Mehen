@@ -9,8 +9,6 @@
   ```bash
   cargo install wasm-pack
   ```
-
-<br>
   
 ### Build
 
@@ -119,3 +117,4 @@ This combination of gameplay and symbolic meaning makes Mehen a unique window in
 ├── .gitignore               # Git ignore rules                 (Config)
 └── README.md                # This file
 ```
+

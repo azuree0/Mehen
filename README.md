@@ -17,7 +17,7 @@
    wasm-pack build --target web
    ```
 
-2. **local web server:**
+2. **Local web server:**
    ```bash
    python -m http.server 8000
    ```
@@ -117,5 +117,6 @@ This combination of gameplay and symbolic meaning makes Mehen a unique window in
 ├── .gitignore               # Git ignore rules                 (Config)
 └── README.md                # This file
 ```
+
 
 

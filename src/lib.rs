@@ -425,10 +425,338 @@ impl GameState {
         
         serde_wasm_bindgen::to_value(&start_pieces).unwrap()
     }
+    
+    /// Get complete square render data with position calculations
+    pub fn get_square_render_info(&self, square_index: usize, square_size: f64, board_size: f64) -> JsValue {
+        #[derive(Serialize)]
+        struct SquareRenderInfo {
+            classes: String,
+            left: f64,
+            top: f64,
+            inner_html: String,
+        }
+        
+        let spiral_positions: Vec<SquarePosition> = serde_wasm_bindgen::from_value(
+            self.get_spiral_positions(board_size)
+        ).unwrap_or_default();
+        
+        if square_index >= spiral_positions.len() {
+            return serde_wasm_bindgen::to_value(&SquareRenderInfo {
+                classes: "".to_string(),
+                left: 0.0,
+                top: 0.0,
+                inner_html: "".to_string(),
+            }).unwrap();
+        }
+        
+        let pos = &spiral_positions[square_index];
+        let render_data_value = self.get_square_render_data(square_index, square_size);
+        
+        #[derive(Deserialize)]
+        struct SquareRenderData {
+            content: String,
+            classes: Vec<String>,
+            is_valid_move: bool,
+        }
+        
+        let render_data: SquareRenderData = serde_wasm_bindgen::from_value(render_data_value).unwrap();
+        
+        let inner_html = format!("{}<span class=\"square-number\">{}</span>", 
+            render_data.content, square_index + 1);
+        
+        serde_wasm_bindgen::to_value(&SquareRenderInfo {
+            classes: render_data.classes.join(" "),
+            left: pos.x - square_size / 2.0,
+            top: pos.y - square_size / 2.0,
+            inner_html,
+        }).unwrap()
+    }
+    
+    /// Get center pieces HTML data
+    pub fn get_center_pieces_html(&self) -> JsValue {
+        #[derive(Serialize)]
+        struct CenterPieceHTML {
+            class: String,
+            text: String,
+        }
+        
+        let center_pieces: Vec<CenterPiece> = serde_wasm_bindgen::from_value(
+            self.get_center_pieces()
+        ).unwrap_or_default();
+        
+        let html_data: Vec<CenterPieceHTML> = center_pieces.iter().map(|p| {
+            CenterPieceHTML {
+                class: format!("center-piece {}-piece", p.player),
+                text: if p.player == "light" { "○".to_string() } else { "●".to_string() },
+            }
+        }).collect();
+        
+        serde_wasm_bindgen::to_value(&html_data).unwrap()
+    }
+    
+    /// Get start pieces HTML data
+    pub fn get_start_pieces_html(&self) -> JsValue {
+        #[derive(Serialize)]
+        struct StartPieceHTML {
+            class: String,
+            text: String,
+            index: usize,
+            is_valid: bool,
+        }
+        
+        let start_pieces: Vec<StartPiece> = serde_wasm_bindgen::from_value(
+            self.get_start_pieces()
+        ).unwrap_or_default();
+        
+        let player_symbol = self.get_current_player_symbol();
+        let html_data: Vec<StartPieceHTML> = start_pieces.iter().map(|p| {
+            StartPieceHTML {
+                class: format!("start-piece {}", if p.is_valid_move { "valid-move" } else { "" }),
+                text: player_symbol.clone(),
+                index: p.index,
+                is_valid: p.is_valid_move,
+            }
+        }).collect();
+        
+        serde_wasm_bindgen::to_value(&html_data).unwrap()
+    }
+    
+    /// Get status display data (message and color)
+    pub fn get_status_display(&self) -> JsValue {
+        #[derive(Serialize)]
+        struct StatusDisplay {
+            message: String,
+            color: String,
+        }
+        
+        let message = self.get_status_message();
+        let color = if self.game_over {
+            "#ff6347".to_string() // Error color
+        } else {
+            "#667eea".to_string() // Normal color
+        };
+        
+        serde_wasm_bindgen::to_value(&StatusDisplay {
+            message,
+            color,
+        }).unwrap()
+    }
+    
+    /// Get dice value display string
+    pub fn get_dice_display(&self) -> String {
+        if self.dice_value == 0 {
+            "-".to_string()
+        } else {
+            self.dice_value.to_string()
+        }
+    }
+    
+    /// Get player indicator class
+    pub fn get_player_indicator_class(&self) -> String {
+        format!("player-indicator {}", 
+            if self.current_player == Player::Dark { "dark" } else { "" })
+    }
+    
+    /// Check if roll dice should auto-pass (no valid moves)
+    pub fn should_auto_pass_turn(&self, rolled_value: u8) -> bool {
+        if rolled_value == 0 {
+            return false;
+        }
+        let valid_moves: Vec<usize> = serde_wasm_bindgen::from_value(
+            self.get_valid_moves()
+        ).unwrap_or_default();
+        valid_moves.is_empty()
+    }
+    
+    /// Get the current status message for the game
+    pub fn get_status_message(&self) -> String {
+        if self.game_over {
+            if let Some(w) = self.winner {
+                let winner_name = match w {
+                    Player::Light => "Light",
+                    Player::Dark => "Dark",
+                };
+                return format!("Game Over! {} Player Wins!", winner_name);
+            }
+        }
+        
+        if self.dice_value == 0 {
+            return String::new();
+        }
+        
+        let valid_moves: Vec<usize> = serde_wasm_bindgen::from_value(
+            self.get_valid_moves()
+        ).unwrap_or_default();
+        
+        if valid_moves.is_empty() {
+            return "No valid moves. Turn passes.".to_string();
+        }
+        
+        "Select a piece to move".to_string()
+    }
+    
+    /// Get player name as string
+    pub fn get_player_name(&self) -> String {
+        match self.current_player {
+            Player::Light => "Light".to_string(),
+            Player::Dark => "Dark".to_string(),
+        }
+    }
+    
+    /// Get square size based on window width (mobile vs desktop)
+    pub fn get_square_size(&self, window_width: f64) -> f64 {
+        if window_width <= 768.0 {
+            45.0
+        } else {
+            55.0
+        }
+    }
+    
+    /// Get piece symbol/content for a square type
+    pub fn get_piece_symbol(&self, square_type: u8) -> String {
+        match square_type {
+            1 => "○".to_string(), // LightPiece
+            2 => "●".to_string(), // DarkPiece
+            _ => "".to_string(),  // Empty
+        }
+    }
+    
+    /// Get piece symbol for current player
+    pub fn get_current_player_symbol(&self) -> String {
+        match self.current_player {
+            Player::Light => "○".to_string(),
+            Player::Dark => "●".to_string(),
+        }
+    }
+    
+    /// Find which piece index is at a given square index (for square click handling)
+    pub fn find_piece_at_square(&self, square_index: usize) -> Option<usize> {
+        if self.game_over || self.dice_value == 0 {
+            return None;
+        }
+        
+        let pieces = match self.current_player {
+            Player::Light => &self.light_pieces,
+            Player::Dark => &self.dark_pieces,
+        };
+        
+        let valid_moves: Vec<usize> = serde_wasm_bindgen::from_value(
+            self.get_valid_moves()
+        ).unwrap_or_default();
+        
+        for i in 0..pieces.len() {
+            let piece_pos = pieces[i];
+            let board_pos = if piece_pos == 36 { 35 } else if piece_pos > 0 { piece_pos - 1 } else { usize::MAX };
+            
+            if board_pos == square_index && valid_moves.contains(&i) {
+                return Some(i);
+            }
+        }
+        
+        None
+    }
+    
+    /// Get UI state (button disabled state, etc.)
+    pub fn get_ui_state(&self) -> JsValue {
+        #[derive(Serialize)]
+        struct UIState {
+            roll_button_disabled: bool,
+            player_is_dark: bool,
+        }
+        
+        let state = UIState {
+            roll_button_disabled: self.dice_value != 0 || self.game_over,
+            player_is_dark: self.current_player == Player::Dark,
+        };
+        
+        serde_wasm_bindgen::to_value(&state).unwrap()
+    }
+    
+    /// Get comprehensive render data for a square
+    pub fn get_square_render_data(&self, square_index: usize, square_size: f64) -> JsValue {
+        #[derive(Serialize)]
+        struct SquareRenderData {
+            content: String,
+            classes: Vec<String>,
+            is_valid_move: bool,
+        }
+        
+        let square_data: Vec<SquareData> = serde_wasm_bindgen::from_value(
+            self.get_square_data()
+        ).unwrap_or_default();
+        
+        if square_index >= square_data.len() {
+            return serde_wasm_bindgen::to_value(&SquareRenderData {
+                content: "".to_string(),
+                classes: vec![],
+                is_valid_move: false,
+            }).unwrap();
+        }
+        
+        let data = &square_data[square_index];
+        let mut classes = vec!["square".to_string(), "spiral-square".to_string()];
+        let content = self.get_piece_symbol(data.square_type);
+        
+        match data.square_type {
+            1 => classes.push("light-piece".to_string()),
+            2 => classes.push("dark-piece".to_string()),
+            _ => classes.push("empty".to_string()),
+        }
+        
+        if data.is_valid_move {
+            classes.push("valid-move".to_string());
+        }
+        
+        if data.is_center {
+            classes.push("center".to_string());
+        }
+        
+        serde_wasm_bindgen::to_value(&SquareRenderData {
+            content,
+            classes,
+            is_valid_move: data.is_valid_move,
+        }).unwrap()
+    }
+    
+    /// Handle square click - returns piece index if valid move found
+    pub fn handle_square_click(&self, square_index: usize) -> Option<usize> {
+        self.find_piece_at_square(square_index)
+    }
 }
 
 #[wasm_bindgen]
 pub fn init() {
     console_error_panic_hook::set_once();
+}
+
+#[wasm_bindgen]
+impl GameState {
+    /// Check if a specific square index contains a valid move for the current player
+    pub fn is_square_valid_move(&self, square_index: usize) -> bool {
+        if self.game_over || self.dice_value == 0 {
+            return false;
+        }
+        
+        let pieces = match self.current_player {
+            Player::Light => &self.light_pieces,
+            Player::Dark => &self.dark_pieces,
+        };
+        
+        let valid_moves: Vec<usize> = serde_wasm_bindgen::from_value(
+            self.get_valid_moves()
+        ).unwrap_or_default();
+        
+        for i in 0..pieces.len() {
+            if valid_moves.contains(&i) {
+                let piece_pos = pieces[i];
+                let board_pos = if piece_pos == 36 { 35 } else if piece_pos > 0 { piece_pos - 1 } else { usize::MAX };
+                if board_pos == square_index {
+                    return true;
+                }
+            }
+        }
+        
+        false
+    }
 }
 

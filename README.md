@@ -2,7 +2,7 @@
 
 <br>
 
-# Prerequisites
+# WebAssembly
 
 - **Rust** (latest stable version) - (https://rustup.rs/)
 - **wasm-pack** - Install with:
@@ -117,6 +117,7 @@ This combination of gameplay and symbolic meaning makes Mehen a unique window in
 ├── .gitignore               # Git ignore rules                 (Config)
 └── README.md                # This file
 ```
+
 
 
 

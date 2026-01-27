@@ -102,21 +102,22 @@ This combination of gameplay and symbolic meaning makes Mehen a unique window in
 .
 ├── Cargo.toml               # Rust project configuration       (Backend)  (Config)
 ├── package.json             # Node.js dependencies and scripts (Frontend) (Config)
-├── index.html               # HTML entry point                 (Frontend) (Static / 1 Markup)
-├── index.js                 # Vanilla JavaScript entry point   (Frontend) (Source / 6 Script)
-├── style.css                # Global styles                    (Frontend) (Static / 4 Styles)
+├── index.html               # HTML entry point                 (Frontend) (Static /  Markup)
+├── index.js                 # Vanilla JavaScript entry point   (Frontend) (Source /  Script)
+├── style.css                # Global styles                    (Frontend) (Static /  Styles)
 ├── src/
-│   └── lib.rs               # Rust game logic (WebAssembly)    (Backend)  (Source / 2 Library)
+│   └── lib.rs               # Rust game logic (WebAssembly)    (Backend)  (Source /  Library)
 ├── pkg/                     # wasm-pack generated 
-│   ├── mehen.js             # WASM bindings                    (Backend)  (Source / 3 Module)
-│   ├── mehen_bg.wasm        # Compiled WebAssembly             (Backend)  (Source / 2 Library)
-│   ├── mehen.d.ts           # TypeScript definitions           (Backend)  (Source / 3 Module)
+│   ├── mehen.js             # WASM bindings                    (Backend)  (Source /  Module)
+│   ├── mehen_bg.wasm        # Compiled WebAssembly             (Backend)  (Source /  Library)
+│   ├── mehen.d.ts           # TypeScript definitions           (Backend)  (Source /  Module)
 │   └── package.json         # WASM package metadata            (Backend)  (Config)
 ├── build.bat                # Windows build script             (Backend)  (Config)
 ├── build.sh                 # Unix build script                (Backend)  (Config)
 ├── .gitignore               # Git ignore rules                 (Config)
 └── README.md                # This file
 ```
+
 
 
 
